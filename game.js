@@ -27,6 +27,9 @@ loadSprite("blue-steel", "gqVoI2b.png");
 loadSprite("blue-evil-shroom", "SvV4ueD.png");
 loadSprite("blue-surprise", "RMqCc1G.png");
 
+let score = 0;
+let level = 1;
+
 scene("game", () => {
   layers(["bg", "obj", "ui"], "obj");
   const map = [
@@ -82,6 +85,24 @@ scene("game", () => {
     body(),
     pos(15, 30),
     origin("bot"),
+  ]);
+  const scoreLabel = add([
+    text(score),
+    pos(15, 0),
+    layer("ui"),
+    scale(0.3),
+    {
+      value: score,
+    },
+  ]);
+  const levelLabel = add([
+    text(`level:${level}`),
+    pos(10, 30),
+    layer("ui"),
+    scale(0.3),
+    {
+      value: level,
+    },
   ]);
 });
 
