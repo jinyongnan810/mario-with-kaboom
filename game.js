@@ -29,6 +29,8 @@ loadSprite("blue-surprise", "RMqCc1G.png");
 
 let score = 0;
 let level = 1;
+const SPEED = 120;
+const JUMP = 360;
 
 scene("game", () => {
   layers(["bg", "obj", "ui"], "obj");
@@ -104,6 +106,18 @@ scene("game", () => {
       value: level,
     },
   ]);
+
+  onKeyDown("space", () => {
+    if (player.grounded()) {
+      player.jump(JUMP);
+    }
+  });
+  onKeyDown("left", () => {
+    player.move(-SPEED, 0);
+  });
+  onKeyDown("right", () => {
+    player.move(SPEED, 0);
+  });
 });
 
 go("game");
