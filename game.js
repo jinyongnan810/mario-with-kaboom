@@ -74,6 +74,15 @@ scene("game", () => {
     x: () => [sprite("blue-steel"), area(), solid(), scale(0.5)],
   };
   const gameLevel = addLevel(map, levelConfig);
+  const player = add([
+    sprite("mario"),
+    area(),
+    solid(),
+    // apply gravity
+    body(),
+    pos(15, 30),
+    origin("bot"),
+  ]);
 });
 
 go("game");
