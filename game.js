@@ -56,11 +56,29 @@ scene("game", () => {
     "%": () => [sprite("surprise"), area(), solid(), "coin-surprise"],
     "*": () => [sprite("surprise"), area(), solid(), "mushroom-surprise"],
     "}": () => [sprite("unboxed"), area(), solid()],
-    "(": () => [sprite("pipe-bottom-left"), area(), solid(), scale(0.5)],
-    ")": () => [sprite("pipe-bottom-right"), area(), solid(), scale(0.5)],
+    "(": () => [
+      sprite("pipe-bottom-left"),
+      area(),
+      solid(),
+      scale(0.5),
+      "pipe",
+    ],
+    ")": () => [
+      sprite("pipe-bottom-right"),
+      area(),
+      solid(),
+      scale(0.5),
+      "pipe",
+    ],
     "-": () => [sprite("pipe-top-left"), area(), solid(), scale(0.5), "pipe"],
     "+": () => [sprite("pipe-top-right"), area(), solid(), scale(0.5), "pipe"],
-    "^": () => [sprite("evil-shroom"), area(), solid(), "dangerous"],
+    "^": () => [
+      sprite("evil-shroom"),
+      area(),
+      solid(),
+      evilMushroomMovement(),
+      "dangerous",
+    ],
     "#": () => [sprite("mushroom"), area(), solid(), "mushroom", body()],
     "!": () => [sprite("blue-block"), area(), solid(), scale(0.5)],
     "£": () => [sprite("blue-brick"), area(), solid(), scale(0.5)],
@@ -80,11 +98,15 @@ scene("game", () => {
     ],
     x: () => [sprite("blue-steel"), area(), solid(), scale(0.5)],
   };
-  function big() {
+  function playerAction() {
     let timer = 0;
     let isBig = false;
+    let isJumping = false;
     return {
       update() {
+        if (this.isGrounded()) {
+          this.isJumping = false;
+        }
         timer -= dt();
         if (timer <= 0) {
           this.smallify();
@@ -104,6 +126,14 @@ scene("game", () => {
       },
     };
   }
+  function evilMushroomMovement() {
+    let goLeft = true;
+    return {
+      update() {
+        this.move(goLeft ? -SPEED / 2 : SPEED / 2, 0);
+      },
+    };
+  }
   const gameLevel = addLevel(map, levelConfig);
   const player = add([
     sprite("mario"),
@@ -113,7 +143,7 @@ scene("game", () => {
     body(),
     pos(15, 30),
     origin("bot"),
-    big(),
+    playerAction(),
   ]);
   const scoreLabel = add([
     text(score),
@@ -172,17 +202,21 @@ scene("game", () => {
     return;
   });
   player.onCollide("dangerous", (obj) => {
-    destroy(obj);
+    if (player.isJumping) {
+      destroy(obj);
+      return;
+    }
     player.solid = false;
 
     setTimeout(() => {
-      reload();
+      go("over", { score: score });
     }, 1000);
     return;
   });
 
   onKeyDown("space", () => {
     if (player.grounded()) {
+      player.isJumping = true;
       player.jump(currentJumpForce);
     }
   });
@@ -192,6 +226,15 @@ scene("game", () => {
   onKeyDown("right", () => {
     player.move(SPEED, 0);
   });
+});
+
+scene("over", ({ score }) => {
+  add([
+    text(`You scored ${score} points`),
+    origin("center"),
+    pos(width() / 2, height() / 2),
+    layer("ui"),
+  ]);
 });
 
 go("game");
