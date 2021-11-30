@@ -29,25 +29,40 @@ loadSprite("blue-surprise", "RMqCc1G.png");
 
 let score = 0;
 let level = 1;
+const MAX_LEVEL = 2;
 const SPEED = 120;
-const JUMP_FORCE = 400;
-const JUMP_FORCE_MAX = 550;
+const JUMP_FORCE = 550;
+const JUMP_FORCE_MAX = 700;
 const DEATH_DEPTH = 500;
 let currentJumpForce = JUMP_FORCE;
 
 scene("game", () => {
   layers(["bg", "obj", "ui"], "obj");
-  const map = [
-    "                                      ",
-    "                                      ",
-    "                                      ",
-    "                                      ",
-    "                                      ",
-    "     %   =*=%=                        ",
-    "                                      ",
-    "                            -+        ",
-    "                    ^   ^   ()        ",
-    "==============================   =====",
+  const maps = [
+    [
+      "                                      ",
+      "                                      ",
+      "                                      ",
+      "                                      ",
+      "                                      ",
+      "     %   =*=%=                        ",
+      "                                      ",
+      "                            -+        ",
+      "                    ^   ^   ()        ",
+      "==============================   =====",
+    ],
+    [
+      "£                                       £",
+      "£                                       £",
+      "£                                       £",
+      "£                                       £",
+      "£                                       £",
+      "£        @@@@@@              x x        £",
+      "£                          x x x        £",
+      "£                        x x x x  x   -+£",
+      "£               z   z  x x x x x  x   ()£",
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+    ],
   ];
   const levelConfig = {
     width: 20,
@@ -88,6 +103,7 @@ scene("game", () => {
       area(),
       solid(),
       scale(0.5),
+      evilMushroomMovement(),
       "dangerous",
     ],
     "@": () => [
@@ -142,7 +158,7 @@ scene("game", () => {
       },
     };
   }
-  const gameLevel = addLevel(map, levelConfig);
+  const gameLevel = addLevel(maps[level - 1], levelConfig);
   const player = add([
     sprite("mario"),
     area(),
@@ -204,6 +220,18 @@ scene("game", () => {
     scoreLabel.text = score;
     return;
   });
+  // TODO: what to do with this?
+  player.onCollide("pipe", (obj) => {
+    onKeyPress("down", () => {
+      if (level == MAX_LEVEL) {
+        go("win", { score: score });
+        return;
+      }
+      level += 1;
+      go("game");
+    });
+    return;
+  });
   player.onCollide("mushroom", (obj) => {
     destroy(obj);
     player.biggerify(7);
@@ -239,6 +267,14 @@ scene("game", () => {
 scene("game-over", ({ score }) => {
   add([
     text(`You scored ${score} points`),
+    origin("center"),
+    pos(width() / 2, height() / 2),
+    layer("ui"),
+  ]);
+});
+scene("win", ({ score }) => {
+  add([
+    text(`Game finished with ${score} points!`),
     origin("center"),
     pos(width() / 2, height() / 2),
     layer("ui"),
