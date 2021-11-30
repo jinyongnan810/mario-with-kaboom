@@ -32,6 +32,7 @@ let level = 1;
 const SPEED = 120;
 const JUMP_FORCE = 400;
 const JUMP_FORCE_MAX = 550;
+const DEATH_DEPTH = 500;
 let currentJumpForce = JUMP_FORCE;
 
 scene("game", () => {
@@ -107,6 +108,13 @@ scene("game", () => {
         if (this.isGrounded()) {
           this.isJumping = false;
         }
+        // camera follow the player
+        camPos(this.pos);
+        // if player fall beneath death depth, game game-over
+        if (this.pos.y > DEATH_DEPTH) {
+          go("game-over", { score: score });
+        }
+
         timer -= dt();
         if (timer <= 0) {
           this.smallify();
@@ -209,7 +217,7 @@ scene("game", () => {
     player.solid = false;
 
     setTimeout(() => {
-      go("over", { score: score });
+      go("game-over", { score: score });
     }, 1000);
     return;
   });
@@ -228,7 +236,7 @@ scene("game", () => {
   });
 });
 
-scene("over", ({ score }) => {
+scene("game-over", ({ score }) => {
   add([
     text(`You scored ${score} points`),
     origin("center"),
